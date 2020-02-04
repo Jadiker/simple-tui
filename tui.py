@@ -12,7 +12,6 @@ def _input(*args, **kwargs):
     except EOFError as e: # pylint: disable = invalid-name
         raise KeyboardInterrupt from e
 
-
 def display(text):
     '''
     Display one line of text on the screen
@@ -21,16 +20,33 @@ def display(text):
     '''
     print(text)
 
-def prompt(text):
-    '''
-    Prompts the user for a value
-
-    prompt is a string
-    '''
+def prompt(text: str) -> str:
+    '''Prompts the user for a value'''
     if not (text.endswith(" ") or text.endswith("\n") or text.endswith("\t")):
         # give space for the user's response
         text += " "
     return _input(text)
+
+def multiline_prompt(text: str, sentinel: str = "..."):
+    '''
+    Prompts the user for a value that can span multiple lines.
+    Will notify the user of what the sentinel is.
+    When the last line is the sentinel value, the prompting ends and the other text is returned.
+    '''
+    if not text.endswith("\n"):
+        # give space for the user's response
+        text += "\n"
+    text += f"(To finish, type '{sentinel}' on a line by itself and press enter.)\n"
+
+    ans = ""
+    line = _input(text)
+    while line != sentinel:
+        ans += line
+        ans += "\n"
+        line = _input()
+
+    # take off the trailing newline
+    return ans[:-1]
 
 def choice(options: List[str]) -> int:
     '''
@@ -71,9 +87,11 @@ def choice(options: List[str]) -> int:
     return number
 
 if __name__ == "__main__":
+    user_response = multiline_prompt("Tell me something interesting")
+    print(f"Got back:\n{user_response}")
     display("Hello world!")
     user_response = prompt("Testing user input: ")
-    print("Got back: {}".format(user_response))
+    print(f"Got back: {user_response}")
     my_options = ["The first option", "The second option"]
     user_choice = choice(my_options)
     print("The user chose to do the following: {}".format(my_options[user_choice]))
