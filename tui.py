@@ -1,23 +1,19 @@
 '''Functions for creating a Text User Interface'''
 
-from typing import List
+from typing import List, Any, Optional
 
-def _input(*args, **kwargs):
+def _input(prompt: str = "") -> str:
     '''
     Make sure that KeyboardInterrupts are treated as such.
     See https://stackoverflow.com/a/31131378 for more info.
     '''
     try:
-        return input(*args, **kwargs)
+        return input(prompt)
     except EOFError as e: # pylint: disable = invalid-name
         raise KeyboardInterrupt from e
 
-def display(text):
-    '''
-    Display one line of text on the screen
-
-    text is a string
-    '''
+def display(text: Any) -> None:
+    '''Display text on the screen'''
     print(text)
 
 def prompt(text: str) -> str:
@@ -27,7 +23,7 @@ def prompt(text: str) -> str:
         text += " "
     return _input(text)
 
-def multiline_prompt(text: str, sentinel: str = "..."):
+def multiline_prompt(text: str, sentinel: str = "..") -> str:
     '''
     Prompts the user for a value that can span multiple lines.
     Will notify the user of what the sentinel is.
@@ -36,7 +32,12 @@ def multiline_prompt(text: str, sentinel: str = "..."):
     if not text.endswith("\n"):
         # give space for the user's response
         text += "\n"
-    text += f"(To finish, type '{sentinel}' on a line by itself and press enter.)\n"
+    if sentinel:
+        end_help_text = f"(To finish, type '{sentinel}' on a line by itself and press enter.)\n"
+    else:
+        end_help_text = f"(To finish, press enter twice.)\n"
+
+    text += end_help_text
 
     ans = ""
     line = _input(text)
@@ -63,7 +64,7 @@ def choice(options: List[str]) -> int:
     print()
 
     # ask the user for choices
-    number = None
+    number: Optional[int] = None
     while number is None:
         try:
             user_input = _input("Type the number or the option: ")
@@ -84,6 +85,7 @@ def choice(options: List[str]) -> int:
         except Exception: # pylint: disable = broad-except
             print("Sorry, please enter a number between 1 and {} or the exact option".format(len(options)))
             number = None
+
     return number
 
 if __name__ == "__main__":
