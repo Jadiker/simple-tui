@@ -1,6 +1,6 @@
 '''Functions for creating a Text User Interface'''
 
-from typing import List, Any, Optional
+from typing import Any, Callable, Collection, Optional
 
 def _input(prompt: str = "") -> str:
     '''
@@ -22,6 +22,25 @@ def prompt(text: str) -> str:
         # give space for the user's response
         text += " "
     return _input(text)
+
+def valid_prompt(text: str, validator: Callable[[str], bool]) -> str:
+    '''
+    Prompts the user for a value and repeats the prompt until they put a valid response.
+    
+    The validator can either return false or raise an exception in order to not accept an input.
+    '''
+    while True:
+        user_response = prompt(text)
+        try:
+            validator(user_response)
+            valid = True
+        except Exception:
+            valid = False
+        if valid:
+            return user_response
+        else:
+            display("That was not a valid response.")
+
 
 def multiline_prompt(text: str, sentinel: str = "..") -> str:
     '''
@@ -49,19 +68,22 @@ def multiline_prompt(text: str, sentinel: str = "..") -> str:
     # take off the trailing newline
     return ans[:-1]
 
-def choice(options: List[str]) -> int:
+def choice(options: Collection[str], text=None) -> int:
     '''
-    Display a list of options of what the user can do and let the user pick one
+    Display a list of options of what the user can do and let the user pick one.
+    Displays the text before presenting the options.
 
-    options is a list of strings (each one is an option the user can choose)
+    Each string in `options` is an option the user can choose
 
     Returns the index of the option that was chosen.
     '''
-    print("Please choose one of the following options:")
+    if text:
+        display(text)
+    display("Please choose one of the following options:")
     for index, option in enumerate(options):
         human_index = index + 1
-        print("    {}. {}".format(human_index, option))
-    print()
+        display(f"    {human_index}. {option}")
+    display("")
 
     # ask the user for choices
     number: Optional[int] = None
@@ -83,7 +105,7 @@ def choice(options: List[str]) -> int:
                 raise ValueError("Invalid number")
 
         except Exception: # pylint: disable = broad-except
-            print("Sorry, please enter a number between 1 and {} or the exact option".format(len(options)))
+            display(f"Sorry, please enter a number between 1 and {len(options)} or the exact option".format(len(options)))
             number = None
 
     return number
@@ -95,5 +117,5 @@ if __name__ == "__main__":
     user_response = prompt("Testing user input: ")
     print(f"Got back: {user_response}")
     my_options = ["The first option", "The second option"]
-    user_choice = choice(my_options)
+    user_choice = choice(my_options, "Here are a few options.")
     print("The user chose to do the following: {}".format(my_options[user_choice]))
