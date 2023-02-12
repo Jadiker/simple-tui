@@ -1,6 +1,6 @@
 '''Functions for creating a Text User Interface'''
 
-from typing import Any, Callable, Collection, Optional
+from typing import Any, Callable, Collection, Optional, List
 
 def _input(prompt: str = "") -> str:
     '''
@@ -68,15 +68,18 @@ def multiline_prompt(text: str, sentinel: str = "..") -> str:
     # take off the trailing newline
     return ans[:-1]
 
-def choice(options: Collection[str], text=None) -> int:
+def choice(options: List[str], text: Optional[str]=None) -> int:
     '''
     Display a list of options of what the user can do and let the user pick one.
     Displays the text before presenting the options.
 
     Each string in `options` is an option the user can choose
 
-    Returns the index of the option that was chosen.
+    Returns the (computer) index of the option that was chosen.
     '''
+    if len(options) == 0:
+        raise ValueError("No options were given.")
+        
     if text:
         display(text)
     display("Please choose one of the following options:")
@@ -84,6 +87,10 @@ def choice(options: Collection[str], text=None) -> int:
         human_index = index + 1
         display(f"    {human_index}. {option}")
     display("")
+
+    if len(options) == 1:
+        display(f"There is only one option (1. {options[0]}), so it has been automatically chosen.")
+        return 0
 
     # ask the user for choices
     number: Optional[int] = None
@@ -94,18 +101,27 @@ def choice(options: Collection[str], text=None) -> int:
                 number = int(user_input)
             except ValueError:
                 simple_user_input = user_input.strip().lower()
-                for index, option in enumerate(options):
-                    simple_option = option.strip().lower()
-                    if simple_user_input == simple_option:
-                        number = index + 1
+                possible_options = [index + 1 for index, option in enumerate(options) if option.strip().lower().startswith(simple_user_input)]
+                if len(possible_options) == 0:
+                    display(f"There are no options that begin with '{simple_user_input}'.")
+                    raise ValueError("Invalid start of option")
+                elif len(possible_options) == 1:
+                    number = possible_options[0]
+                else:
+                    display(f"There are {len(possible_options)} options that start with '{simple_user_input}':")
+                    for index in possible_options:
+                        computer_index = index - 1
+                        display(f"    {index}. {options[computer_index]}")
+                    display("Please be more specific.")
+                    raise ValueError("Unspecific option")
 
             assert isinstance(number, int)
-            number -= 1
+            number -= 1 # adjust from human index to computer index
             if number < 0 or len(options) <= number:
                 raise ValueError("Invalid number")
 
-        except Exception: # pylint: disable = broad-except
-            display(f"Sorry, please enter a number between 1 and {len(options)} or the exact option".format(len(options)))
+        except (ValueError, AssertionError) as e:
+            display(f"Sorry, please enter a number between 1 and {len(options)} or the start of a specific option.")
             number = None
 
     return number
