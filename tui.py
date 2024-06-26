@@ -75,7 +75,7 @@ def choice(options: List[str], text: Optional[str]=None) -> int:
 
     Each string in `options` is an option the user can choose
 
-    Returns the (computer) index of the option that was chosen.
+    Returns the (0-indexed) index of the option that was chosen.
     '''
     if len(options) == 0:
         raise ValueError("No options were given.")
