@@ -2,6 +2,8 @@
 
 from typing import Any, Callable, Collection, Optional, List
 
+TAB = "    "
+
 def _input(prompt: str = "") -> str:
     '''
     Make sure that KeyboardInterrupts are treated as such.
@@ -85,8 +87,16 @@ def choice(options: List[str], text: Optional[str]=None) -> int:
     display("Please choose one of the following options:")
     for index, option in enumerate(options):
         human_index = index + 1
-        display(f"    {human_index}. {option}")
-    display("")
+        if "\n" in option:
+            # the option has multiple lines
+            # add an extra indent to all of the lines after the first line
+            option_lines = option.split("\n")
+            multiline_option_str = f"{TAB}{human_index}. {option_lines[0]}\n" + "\n".join([f"{TAB}{TAB}{line}" for line in option_lines[1:]])
+            display(multiline_option_str)
+        else:
+            # just a single line - no need to add extra indentation
+            display(f"{TAB}{human_index}. {option}")
+    display("") # blank line for the user to respond afterwards
 
     if len(options) == 1:
         display(f"There is only one option (1. {options[0]}), so it has been automatically chosen.")
@@ -111,7 +121,7 @@ def choice(options: List[str], text: Optional[str]=None) -> int:
                     display(f"There are {len(possible_options)} options that start with '{simple_user_input}':")
                     for index in possible_options:
                         computer_index = index - 1
-                        display(f"    {index}. {options[computer_index]}")
+                        display(f"{TAB}{index}. {options[computer_index]}")
                     display("Please be more specific.")
                     raise ValueError("Unspecific option")
 
