@@ -1,6 +1,6 @@
 '''Functions for creating a Text User Interface'''
 
-from typing import Any, Callable, Collection, Optional, List
+from typing import Any, Callable, Collection, Optional, Sequence
 
 TAB = "    "
 
