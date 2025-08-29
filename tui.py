@@ -70,7 +70,7 @@ def multiline_prompt(text: str, sentinel: str = "..") -> str:
     # take off the trailing newline
     return ans[:-1]
 
-def choice(options: List[str], text: Optional[str]=None) -> int:
+def choice(options: Sequence[str], text: Optional[str]=None) -> int:
     '''
     Display a list of options of what the user can do and let the user pick one.
     Displays the text before presenting the options.
