@@ -1,6 +1,6 @@
 # Simple TUI
 
-A simple Python module for creating text user interfaces that can be really easily used in quick-and-dirty projects to get up and running fast.
+A simple Python module for creating text user interfaces that can be very easily used in projects to get up and running fast.
 
 ## Overview
 
